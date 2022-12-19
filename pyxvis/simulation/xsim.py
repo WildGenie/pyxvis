@@ -60,15 +60,14 @@ def funcf(m,K):
     x = np.ones((3,1))
     x[0] = m[0]
     x[1] = m[1]
-    y = np.matmul(K,x)
-    return y
+    return np.matmul(K,x)
 
 
 def ellipsoid_simulation(I,K,SSe,f,abc,var_mu,xmax):
 
     J = I.copy()
     (N,M) = I.shape
-    
+
 
     R = np.zeros((N,M)) # ROI of simulated defect
 
@@ -87,9 +86,9 @@ def ellipsoid_simulation(I,K,SSe,f,abc,var_mu,xmax):
     h1    = H[1,:]/b
     h2    = H[2,:]/c
     Hs    = np.zeros((3,3))
-    Hs[:,0] = h0[0:3]
-    Hs[:,1] = h1[0:3]
-    Hs[:,2] = h2[0:3]
+    Hs[:,0] = h0[:3]
+    Hs[:,1] = h1[:3]
+    Hs[:,2] = h2[:3]
     hd      = np.zeros((3,1))
     hd[0] = h0[3]
     hd[1] = h1[3]
@@ -136,7 +135,7 @@ def ellipsoid_simulation(I,K,SSe,f,abc,var_mu,xmax):
         for v in range(vmin,vmax):
             z[1] = v
             m = funcf(z,invK)
-            m[0:2] = m[0:2]/f
+            m[:2] = m[:2] / f
             p = np.matmul(np.matmul(m.T,L),m)
             if p>0:
                 x = np.matmul(np.matmul(m.T,Phi),m)
@@ -150,7 +149,7 @@ def voxels_simulation(N,M,V,s,P):
     Q = np.zeros((N,M))
     (Nx,Ny,Nz) = V.shape
     for x in range(Nx):
-        print(str(x)+'/'+str(Nx))
+        print(f'{str(x)}/{str(Nx)}')
         X = x/s
         for y in range(Ny):
             Y = y/s

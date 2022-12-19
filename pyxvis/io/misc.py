@@ -17,6 +17,5 @@ def dirfiles(img_path,img_ext):
     return img_names
 
 def num2fixstr(x,d):
-    st = '%0*d' % (d,x)
-    return st
+    return '%0*d' % (d,x)
 

@@ -32,11 +32,7 @@ class DatasetBase:
 
         """
 
-        if not dataset_path:
-            root_path = GDXRAY_PATH
-        else:
-            root_path = dataset_path
-
+        root_path = dataset_path or GDXRAY_PATH
         self.root_path = root_path
         self.group_name = group_name
         self.group_prefix = group_prefix
@@ -56,9 +52,6 @@ class DatasetBase:
 
         Returns: a python dictionary that aggregates the information.
         """
-        # Create a dictionary for count items in each series
-        table = {'series': 0, 'images': 0, 'size': 0}
-
         # Read series within a group
         series = [s for s in listdir(self.dataset_path) if isdir(_path.join(self.dataset_path, s))]
 
@@ -72,11 +65,11 @@ class DatasetBase:
             for f in images:
                 size_bytes += _path.getsize(_path.join(self.dataset_path, s, f))
 
-        table['series'] = len(series)
-        table['images'] = num_images
-        table['size'] = size_bytes / (1024.0 ** 2)
-
-        return table
+        return {
+            'series': len(series),
+            'images': num_images,
+            'size': size_bytes / 1024.0**2,
+        }
 
     def get_dir(self, series):
         """
@@ -111,9 +104,7 @@ class DatasetBase:
         """
         _filename = _path.join(self.dataset_path, '{:s}{:04d}'.format(self.group_prefix, series))
         _filename = _path.join(_filename, '{:s}{:04d}_{:04d}.txt'.format(self.group_prefix, series, k))
-        ground_truth = genfromtxt('my_file.csv', delimiter=',')
-
-        return ground_truth
+        return genfromtxt('my_file.csv', delimiter=',')
 
     def load_image(self, series, k):
         """
@@ -134,9 +125,7 @@ class DatasetBase:
         except AssertionError:
             raise Exception('File not found')
 
-        img = imread(_filename, IMREAD_GRAYSCALE)
-
-        return img
+        return imread(_filename, IMREAD_GRAYSCALE)
 
     def load_data(self, series, data_type=None):
         """
@@ -158,7 +147,7 @@ class DatasetBase:
         try:
             assert _path.exists(_filename)
         except AssertionError:
-            raise Exception('File not found: {}'.format(_filename))
+            raise Exception(f'File not found: {_filename}')
 
         # Load the LUT from mat file.
         data = sio.loadmat(_filename)
@@ -166,15 +155,11 @@ class DatasetBase:
         _data = None
 
         if not data_type:
-            _data = None
+            return None
         elif data_type == 'DualEnergyLUT':
-            _data = data['LUT']
-        elif data_type == 'points':
-            _data = data
+            return data['LUT']
         else:
-            _data = data
-
-        return _data
+            return data
 
 
 class Baggages(DatasetBase):
@@ -192,15 +177,13 @@ class Baggages(DatasetBase):
         try:
             assert _path.exists(_filename)
         except AssertionError:
-            raise Exception('File not found: {}'.format(_filename))
+            raise Exception(f'File not found: {_filename}')
 
-        img = imread(_filename, IMREAD_GRAYSCALE)
-
-        return img
+        return imread(_filename, IMREAD_GRAYSCALE)
 
     def load_data(self, series, data_type=None):
         _filename = _path.join(self.dataset_path, 'B{:04d}'.format(series))
-        _filename = _path.join(_filename, '{}.mat'.format(data_type))
+        _filename = _path.join(_filename, f'{data_type}.mat')
 
         try:
             assert _path.exists(_filename)
@@ -213,13 +196,11 @@ class Baggages(DatasetBase):
         _data = None
 
         if not data_type:
-            _data = None
+            return None
         elif data_type == 'DualEnergyLUT':
-            _data = data['LUT']
+            return data['LUT']
         else:
-            _data = data
-
-        return _data
+            return data
 
 
 class Settings(DatasetBase):
@@ -271,9 +252,7 @@ class Castings(DatasetBase):
         _filename = _path.join(self.dataset_path, '{0}{1:04d}'.format(self.group_prefix, series))
         _filename = _path.join(_filename, '{0}'.format(data_type))
 
-        data = loadtxt(_filename)
-
-        return data
+        return loadtxt(_filename)
 
 
 def load_image_set(set_name, *args, **kwargs):
@@ -316,9 +295,7 @@ class ImageSet(DatasetBase):
         except AssertionError:
             raise Exception('File not found')
 
-        img = imread(_filename, IMREAD_GRAYSCALE)
-
-        return img
+        return imread(_filename, IMREAD_GRAYSCALE)
 
 
 def xgdx_stats(root_dir=None):

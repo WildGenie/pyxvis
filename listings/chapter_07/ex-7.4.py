@@ -9,25 +9,41 @@ from pyxvis.io.data import init_data, append_data
 from pyxvis.io.plots import print_confusion
 
 gdxray       = DatasetBase()
-path         = gdxray.dataset_path + '/Baggages/' 
+path = f'{gdxray.dataset_path}/Baggages/'
 model_id     = 6 # 0 ResNet50, 1 VGG16, 2 VGG19, ... 6 MobileNet, ... 13 RCNN_ILSVRC13
 output_layer = 2 # 0 Keras-Last, 1 ONNX-Last, 2 ONNX-Previous
 
 # Classifiers to evaluate
 ss_cl        = ['knn1','knn3','svm-lin','svm-rbf','nn']
 (model,size,model_name) = prt_model(model_id,output_layer)
-X49 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0049/')
-X50 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0050/')
-X51 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0051/')
-X78 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0078/')
-X79 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0079/')
-X80 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0080/')
-X81 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0081/')
-X82 = extract_prt_features(model_id,output_layer,model,size,model_name,path+'B0082/')
+X49 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0049/'
+)
+X50 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0050/'
+)
+X51 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0051/'
+)
+X78 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0078/'
+)
+X79 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0079/'
+)
+X80 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0080/'
+)
+X81 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0081/'
+)
+X82 = extract_prt_features(
+    model_id, output_layer, model, size, model_name, f'{path}B0082/'
+)
 
 best_performance = 0 # initial value
-for i in range(len(ss_cl)):
-    cl_name = ss_cl[i]
+for item in ss_cl:
+    cl_name = item
     print('\nEvaluation of '+cl_name+' using '+model_name+'...')
     (Q_v,Q_t) = (0,0) # initial score Q values for validation and testing
     for j in range(4):
@@ -44,9 +60,9 @@ for i in range(len(ss_cl)):
             (c0,c1,c2,c3) = (0,1,2,3)
             st = 'All'
 
-        print('building dataset for '+st+' using ' + model_name +' ...')
+        print(f'building dataset for {st} using {model_name} ...')
         # Training data
-        (X,d)   = init_data(X49[0:200],c0)             # Gun
+        (X,d) = init_data(X49[:200], c0)
         (X,d)   = append_data(X,d,X50[0:100,:],c1)     # Shuriken
         (X,d)   = append_data(X,d,X51[0:100,:],c2)     # Blade
         (X,d)   = append_data(X,d,X78[0:500,:],c3)     # Other
@@ -61,13 +77,13 @@ for i in range(len(ss_cl)):
         (Xt,dt) = append_data(X,d,X81[50:150,:],c2)    # Blade
         (Xt,dt) = append_data(X,d,X82[200:600,:],c3)   # Other
 
-        print('training '+cl_name+' for '+st+' using ' + model_name +' ...')
+        print(f'training {cl_name} for {st} using {model_name} ...')
         (name,params) = clf_model(cl_name)               # function name and parameters
         clf           = define_classifier([name,params]) # classifier definition
         clf           = train_classifier(clf,X,d)        # classifier training
         ds_v          = test_classifier(clf,Xv)          # clasification of validation
         ds_t          = test_classifier(clf,Xt)          # clasification of testing
-        print('Results - ' + st + ' ('+cl_name+') for the detectors:')
+        print(f'Results - {st} ({cl_name}) for the detectors:')
         if j<3: # detection of three treat objects
             # performance on validation subset
             (pr_v,re_v) = precision_recall(dv,ds_v)
@@ -86,7 +102,7 @@ for i in range(len(ss_cl)):
             Q_t = Q_t/3         # score Q on testing
             print(f'Q_test   = {Q_v:.4f} of all detectors')
             # four-class classification
-            print('Results - ' + st + ' ('+cl_name+') for the 4-class classifier:')
+            print(f'Results - {st} ({cl_name}) for the 4-class classifier:')
             acc_v = accuracy_score(dt,ds_t)
             print(f'Acc_val  = {acc_v:.4f}')
             acc_t = accuracy_score(dv,ds_v)
@@ -100,6 +116,6 @@ for i in range(len(ss_cl)):
         best_Q           = Q_t
         best_acc         = acc_t
         best_clf         = cl_name
-print('Best result: classifier = '+best_clf)
+print(f'Best result: classifier = {best_clf}')
 print(f'                 Q_test = {best_Q:.4f}')
 print(f'               acc_test = {best_acc:.4f}')

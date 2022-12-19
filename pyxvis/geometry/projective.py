@@ -18,14 +18,9 @@ def rotation_matrix_2d(theta):
     :returns _r_mat: the rotation matrix (ndarray)
     """
 
-    _r_mat = np.array(
-        [
-            [np.cos(theta), -np.sin(theta)],
-            [np.sin(theta), np.cos(theta)]
-        ]
+    return np.array(
+        [[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]
     )
-
-    return _r_mat
 
 
 def rotation_matrix_3d(wx, wy, wz):
@@ -38,17 +33,23 @@ def rotation_matrix_3d(wx, wy, wz):
     :returns _r_mat: the rotation matrix for 3D spaces (ndarray)
     """
 
-    _r_mat = np.array([
-        [np.cos(wy) * np.cos(wz), -np.cos(wy) * np.sin(wz), np.sin(wy)],
-        [np.sin(wx) * np.sin(wy) * np.cos(wz) + np.cos(wx) * np.sin(wz),
-         -np.sin(wx) * np.sin(wy) * np.sin(wz) + np.cos(wx) * np.cos(wz),
-         -np.sin(wx) * np.cos(wy)],
-        [-np.cos(wx) * np.sin(wy) * np.cos(wz) + np.sin(wx) * np.sin(wz),
-         np.cos(wx) * np.sin(wy) * np.sin(wz) + np.sin(wx) * np.cos(wz),
-         np.cos(wx) * np.cos(wy)]
-    ])
-
-    return _r_mat
+    return np.array(
+        [
+            [np.cos(wy) * np.cos(wz), -np.cos(wy) * np.sin(wz), np.sin(wy)],
+            [
+                np.sin(wx) * np.sin(wy) * np.cos(wz) + np.cos(wx) * np.sin(wz),
+                -np.sin(wx) * np.sin(wy) * np.sin(wz)
+                + np.cos(wx) * np.cos(wz),
+                -np.sin(wx) * np.cos(wy),
+            ],
+            [
+                -np.cos(wx) * np.sin(wy) * np.cos(wz)
+                + np.sin(wx) * np.sin(wz),
+                np.cos(wx) * np.sin(wy) * np.sin(wz) + np.sin(wx) * np.cos(wz),
+                np.cos(wx) * np.cos(wy),
+            ],
+        ]
+    )
 
 
 def get_matrix_p(f):
@@ -61,12 +62,7 @@ def get_matrix_p(f):
     Returns: the perspective projection matrix p (ndarray)
 
     """
-    p = np.array([
-        [f, 0, 0, 0],
-        [0, f, 0, 0],
-        [0, 0, 1, 0]
-    ])
-    return p
+    return np.array([[f, 0, 0, 0], [0, f, 0, 0], [0, 0, 1, 0]])
 
 
 def hyperproj(m3d, pa, hp):
@@ -120,7 +116,5 @@ def hyperproj(m3d, pa, hp):
 
     mpp = np.array([c * xp, c * yp, 1])
 
-    w = np.dot(mat_a, mpp[:, np.newaxis])
-
-    return w
+    return np.dot(mat_a, mpp[:, np.newaxis])
 

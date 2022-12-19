@@ -20,15 +20,13 @@ from pybalu.feature_selection import sfs as sfsfisher
 
 
 def defineModel(bcl):
-    model = eval(bcl[0]+'('+bcl[1]+')')
-    return model
+    return eval(f'{bcl[0]}({bcl[1]})')
 
 def fse_sbs(bcl,X,d,m):
     estimator = defineModel(bcl)
     selector  = RFE(estimator, m, step=1, verbose = 2)
     selector  = selector.fit(X, d)
-    sel       = np.nonzero(selector.support_)[0]
-    return sel
+    return np.nonzero(selector.support_)[0]
 
 
 def fse_sbs_cv(bcl,X,d,m):
@@ -63,7 +61,9 @@ def fse_sfs(bcl,X,d,m,cv = 0, show = 0):
 
 def fsel(bcl,X,d,m,forward=True,floating=False,cv = 0, show = 0):
     if show>0:
-        print('Feature Selection - '+bcl[0]+':  - number of features reducing from ' + str(X.shape[1]) + ' to '+str(m)+' ...')
+        print(
+            f'Feature Selection - {bcl[0]}:  - number of features reducing from {str(X.shape[1])} to {str(m)} ...'
+        )
     if bcl[0]=='Fisher':
         sel = sfsfisher(X,d,m)
     else:
@@ -86,10 +86,7 @@ def sfspca_old(X,d,m1,m2,cc,ex,m3):
     Y, _, _, _, _ = pca(X, n_components=m2)
     if cc == 1:
         Y = np.concatenate((X,Y),axis=1)
-    if ex == 1:
-        s2 = exsearch(Y,d,m3)
-    else:
-        s2 = sfs(Y,d,m3)
+    s2 = exsearch(Y,d,m3) if ex == 1 else sfs(Y,d,m3)
     X = Y[:,s2]
     return X
 
@@ -103,10 +100,7 @@ def sfspca(bcl,X,d,m1,m2,cc,ex,m3):
     if cc == 1:
         Y = np.concatenate((X,Y),axis=1)
     if m3 > 0:
-        if ex == 1:
-            s2 = exsearch(Y,d,m3)
-        else:
-            s2 = fsel(bcl,Y,d,m3)
+        s2 = exsearch(Y,d,m3) if ex == 1 else fsel(bcl,Y,d,m3)
         X = Y[:,s2]
     else:
         X = Y
@@ -121,8 +115,7 @@ def clean_norm(X):
 
 def clean_norm_transform(Xt,sclean,a,b):
     Xt            = Xt[:,sclean]
-    Xt            = Xt*a + b
-    return Xt
+    return Xt*a + b
 
 
 

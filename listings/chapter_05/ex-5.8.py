@@ -10,6 +10,7 @@
          Xt : new matrix of testing features
 """
 
+
 from sklearn.neighbors import KNeighborsClassifier as KNN
 from pyxvis.features.selection import fse_model, fsel
 from pyxvis.io.data import load_features
@@ -23,7 +24,7 @@ p = 5
 # Feature selection
 (name, params) = fse_model(s)
 q = fsel([name, params], X, d, p, cv=5, show=1)
-print(str(len(q)) + ' from ' + str(X.shape[1]) + ' features selected.')
+print(f'{len(q)} from {str(X.shape[1])} features selected.')
 
 # New training and testing data
 X = X[:, q]

@@ -20,10 +20,12 @@ acc = np.zeros((n,))
 for k in range(n):
     (name, params) = clf_model(ss_cl[k])  # function name and parameters
     acc[k] = cross_validation([name, params], X, d, folds=folds)
-    print(f'{k:3d}' + ') ' + f'{ss_cl[k]:20s}' + ': ' + f'CV-Accuracy = {acc[k]:.4f}')
+    print(f'{k:3d}) ' + f'{ss_cl[k]:20s}' + ': ' + f'CV-Accuracy = {acc[k]:.4f}')
 ks = np.argmax(acc)
 
 print('-----------------------------------------------')
 print('Best Classifier:')
-print(f'{ks:3d}' + ') ' + f'{ss_cl[ks]:20s}' + ': ' + f'CV-Accuracy = {acc[ks]:.4f}')
+print(
+    f'{ks:3d}) ' + f'{ss_cl[ks]:20s}' + ': ' + f'CV-Accuracy = {acc[ks]:.4f}'
+)
 print('-----------------------------------------------')

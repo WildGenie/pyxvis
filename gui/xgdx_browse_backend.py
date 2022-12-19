@@ -37,13 +37,11 @@ def load_dataset(collection_name):
     Returns:
         image_set (object): DataBase class instance
     """
-    image_set = load_image_set(collection_name)
-    return image_set
+    return load_image_set(collection_name)
 
 
 def get_series_id(series_name):
-    series_id = int(series_name.strip('0')[1:].strip('0'))
-    return series_id
+    return int(series_name.strip('0')[1:].strip('0'))
 
 
 def load_image(image_set, series_name, image_id):
@@ -66,10 +64,11 @@ def get_dir_list(input_path):
     :return:
     """
     print(input_path)
-    series = [s for s in os.listdir(input_path) if os.path.isdir(os.path.join(input_path, s))]
-
-    # return os.listdir(input_path)
-    return series
+    return [
+        s
+        for s in os.listdir(input_path)
+        if os.path.isdir(os.path.join(input_path, s))
+    ]
 
 
 def check_last_image(curr_idx, last):
@@ -91,12 +90,7 @@ def compose_image_message(self):
     _text_bottom += "  "
     _text_bottom += f"[ Series {self.series_name} with {self.series_len} images ]"
     _filename = compose_filename(self.series_name, self.series_current_idx)
-    messages = {
-        'filename': _filename,
-        'text_bottom': _text_bottom
-    }
-
-    return messages
+    return {'filename': _filename, 'text_bottom': _text_bottom}
 
 
 def show_image(img, messages=None, fig=None, ax=None, cmap='Gray'):

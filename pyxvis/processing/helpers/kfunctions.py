@@ -18,8 +18,7 @@ def prewitt_kernel(size=3, *args):
     :return:
     """
 
-    prewitt = np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]], dtype='double')
-    return prewitt
+    return np.array([[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]], dtype='double')
 
 
 def sobel_kernel(size=3, *args):

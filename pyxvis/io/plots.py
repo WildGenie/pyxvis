@@ -37,14 +37,14 @@ def accuracy(Ys, Y, st):
     acc = accuracy_score(d, ds)
     print('Confusion Matrix:')
     print(C)
-    print('Accuracy = ' + str(acc))
+    print(f'Accuracy = {str(acc)}')
     print()
     nm = C.shape[0]
     plt.figure(figsize=(7, 5))
     heatmap(C, annot=True, fmt="d", cmap="YlGnBu")
     plt.xlim(0, nm)
     plt.ylim(nm, 0)
-    plt.title('Confusion Matrix ' + st, fontsize=14)
+    plt.title(f'Confusion Matrix {st}', fontsize=14)
     plt.show()
     return acc
 
@@ -90,21 +90,21 @@ def plot_ellipses_image(I, x, y=0):
 
 def plot_confusion(confusion_mtx, acc, st, dmin, dmax, p100=True):
     C = confusion_mtx.copy()
-    print('Confusion matrix - ' + st + ':')
+    print(f'Confusion matrix - {st}:')
     print(C)
     accst = f'Acc = {acc:.4f}'
     print(accst)
     plt.figure(figsize=(10, 8))
-    n = C.shape[0]
     if p100:
+        n = C.shape[0]
         for i in range(n):
             si = np.sum(C[i, :])
             C[i, :] = C[i, :] / si * 100
         heatmap(C, annot=True, fmt="d", cmap="YlGnBu", vmin=0, vmax=100)
-        st = 'Confusion Matrix [%] - ' + st + ': ' + accst
+        st = f'Confusion Matrix [%] - {st}: {accst}'
     else:
         heatmap(C, annot=True, fmt="d", cmap="YlGnBu")
-        st = 'Confusion Matrix - ' + st + ': ' + accst
+        st = f'Confusion Matrix - {st}: {accst}'
     plt.xlim(dmin, dmax)
     plt.ylim(dmax, dmin)
     plt.title(st, fontsize=14)
@@ -156,8 +156,8 @@ def plot_confusion_matrix(dt, ds, st):
     plt.ylim(dmax, dmin)
     acc = accuracy_score(dt, ds)
     accst = f'Acc = {acc:.4f}'
-    print('Accuracy = ' + accst)
-    plt.title('Confusion Matrix [%] - ' + st + ': ' + accst, fontsize=14)
+    print(f'Accuracy = {accst}')
+    plt.title(f'Confusion Matrix [%] - {st}: {accst}', fontsize=14)
     plt.show()
 
 
@@ -167,7 +167,7 @@ def print_confusion(dt, ds):
     print('Confusion Matrix:')
     print(C)
     acc = accuracy_score(dt, ds)
-    print('Accuracy = ' + str(acc))
+    print(f'Accuracy = {str(acc)}')
 
 
 def plot_decision_lines(clf, X, show=0, decisionline=1):
@@ -191,12 +191,18 @@ def plot_features(X, d, st, show=1):
     dmin = int(np.min(d))
     dmax = int(np.max(d))
     for j in range(dmin, dmax + 1):
-        plt.scatter(X[d == j, 0], X[d == j, 1], label='Class ' + str(j), cmap=plt.cm.autumn, s=17)
+        plt.scatter(
+            X[d == j, 0],
+            X[d == j, 1],
+            label=f'Class {str(j)}',
+            cmap=plt.cm.autumn,
+            s=17,
+        )
     plt.grid(True)
     plt.legend()
     plt.xlabel('$x_1$', fontsize=14)
     plt.ylabel('$x_2$', fontsize=14)
-    plt.title('Feature Space - ' + st, fontsize=14)
+    plt.title(f'Feature Space - {st}', fontsize=14)
     if show == 1:
         plt.show()
 
@@ -213,7 +219,7 @@ def plot_features2(X, d, st, show=1):
     plt.ylim(y_min, y_max)
     plt.xticks(())
     plt.yticks(())
-    plt.title('Feature Space - ' + st, fontsize=14)
+    plt.title(f'Feature Space - {st}', fontsize=14)
     # plt.grid(True)
     # plt.legend()
     if show == 1:
@@ -227,7 +233,7 @@ def plot_features3(X, d, st, show=1, view=(30, 60)):
     ax.set_xlabel('$x_1$', fontsize=14)
     ax.set_ylabel('$x_2$', fontsize=14)
     ax.set_zlabel('$x_3$', fontsize=14)
-    plt.title('Feature Space - ' + st, fontsize=14)
+    plt.title(f'Feature Space - {st}', fontsize=14)
     ax.view_init(view[0], view[1])
     # plt.axis('off')
     # plt.grid(b=None)
@@ -240,15 +246,18 @@ def plot_features_y(X, Y, st):
         X = X.transpose()
     if Y.shape[1] < Y.shape[0]:
         Y = Y.transpose()
-    if Y.shape[0] > 1:
-        d = np.argmax(Y, axis=0)
-    else:
-        d = Y
+    d = np.argmax(Y, axis=0) if Y.shape[0] > 1 else Y
     K = np.max(d) + 1
     color = ['blue', 'orange', 'green', 'red']
     for j in range(K):
         # plt.scatter(X[d==j,0],X[d==j,1],label='Class '+str(j),color='tab:'+color[j],s=1)
-        plt.scatter(X[0, d == j], X[1, d == j], label='Class ' + str(j), color='tab:' + color[j], s=17)
+        plt.scatter(
+            X[0, d == j],
+            X[1, d == j],
+            label=f'Class {str(j)}',
+            color=f'tab:{color[j]}',
+            s=17,
+        )
 
     plt.grid(True)
     plt.legend()
@@ -256,7 +265,7 @@ def plot_features_y(X, Y, st):
     plt.ylabel('$x_2$', fontsize=14)
     plt.xticks(())
     plt.yticks(())
-    plt.title('Feature Space - ' + st, fontsize=14)
+    plt.title(f'Feature Space - {st}', fontsize=14)
     plt.show()
 
 
@@ -269,14 +278,14 @@ def show_clf_results(clf, X, d, Xt, dt, d0, ds, st, decisionline=1):
     ax = plt.subplot(gs[0, 0])
     print_confusion(d, d0)  # confusion matrix in training
     plot_decision_lines(clf, X, 0, decisionline)  # decision lines
-    plot_features(X, d, st + ' - Training: ' + accst, 0)  # feature space in training
+    plot_features(X, d, f'{st} - Training: {accst}', 0)
     ax = plt.subplot(gs[0, 1])
     print('Testing:')
     acc = accuracy_score(ds, dt)
     accst = f'Acc = {acc:.4f}'
     print_confusion(dt, ds)  # confusion matrix in testing
     plot_decision_lines(clf, X, 0, decisionline)  # decision lines
-    plot_features(Xt, dt, st + ' - Testing: ' + accst, 1)  # feature space in testing
+    plot_features(Xt, dt, f'{st} - Testing: {accst}', 1)
 
 
 def plot_ROC(fpr, tpr, label='ROC', auc=0, seq=None):
@@ -300,7 +309,7 @@ def plot_ROC(fpr, tpr, label='ROC', auc=0, seq=None):
     n = seq[1]
 
     if auc > 0:
-        label = label + f': AUC = {auc:.4f}'
+        label = f'{label}: AUC = {auc:.4f}'
 
     plt.plot(fpr, tpr, label=label)
     plt.plot([0, 1], [0, 1], color='grey', linestyle='--')
@@ -332,7 +341,7 @@ def plot_precision_recall(precision, recall, label='precision/recall', ap=0, seq
     n = seq[1]
 
     if ap > 0:
-        label = label + f': AP = {ap:.4f}'
+        label = f'{label}: AP = {ap:.4f}'
 
     plt.plot(recall, precision, label=label)
 

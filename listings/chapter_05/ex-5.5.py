@@ -34,7 +34,7 @@ for i in range(n):
         if x[3]>1.5:
             print('contrast features:')
             print(x)
-            print('area = '+str(area)+' pixels')
+            print(f'area = {str(area)} pixels')
             K2 = np.bitwise_or(K2,R)
 
 fig, ax = plt.subplots(1, 4, figsize=(16, 8))

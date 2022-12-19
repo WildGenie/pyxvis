@@ -32,12 +32,8 @@ def extract_features(fx, img=None, bw=None):
     n = len(fx)
     for i in range(n):
         X = extract_features_image(fx[i], img=img, bw=bw)
-        if i == 0:
-            Xf = X
-        else:
-            Xf = np.concatenate((Xf,X))
-    features = np.asarray(Xf)
-    return features
+        Xf = X if i == 0 else np.concatenate((Xf,X))
+    return np.asarray(Xf)
 
 
 def extract_features_image(fxi, img=None, bw=None):
@@ -89,7 +85,7 @@ def extract_features_image(fxi, img=None, bw=None):
         X = basic_geo_features(bw)
     elif fxi == 'centroid':
         f = basic_geo_features(bw)
-        X = f[0:2]
+        X = f[:2]
     elif fxi == 'fourierdes':
         X = fourier_des_features(bw)
     elif fxi == 'flusser':
@@ -102,8 +98,7 @@ def extract_features_image(fxi, img=None, bw=None):
         X = ellipse_features(bw)
     else:
         print('ERROR: ' + fxi + ' does not exist as geometric feature extraction method.')
-    features = np.asarray(X)
-    return features
+    return np.asarray(X)
 
 
 def extract_features_dir(fx, dirpath, fmt, segmentation=False):
@@ -121,7 +116,7 @@ def extract_features_dir(fx, dirpath, fmt, segmentation=False):
     st = '*.'+fmt
     img_names = dirfiles(dirpath+'/',st)
     n = len(img_names)
-    print('Extracting features in ' + str(n) + ' images...')
+    print(f'Extracting features in {n} images...')
     for i in range(n):
         img_path = img_names[i]
         print('... reading '+dirpath+'/'+img_path)
@@ -138,7 +133,7 @@ def extract_features_dir(fx, dirpath, fmt, segmentation=False):
         if i==0:
             m = features.shape[0]
             data = np.zeros((n,m))
-            print('Extracting ' + str(features.shape[0]) + ' features...')
+            print(f'Extracting {str(features.shape[0])} features...')
         data[i]    = features
     return data
 
@@ -171,8 +166,7 @@ def fourier_features(I,region=None,Nfourier=64,Mfourier=64,nfourier=4,mfourier=4
     x        = np.angle(Y)
     A        = cv2.resize(x,(nfourier,mfourier))
     a        = np.reshape(A,(nfourier*mfourier,))
-    features = np.concatenate((f,a))
-    return features
+    return np.concatenate((f,a))
 
 def dct_features(I,region=None,Ndct=64,Mdct=64,ndct=4,mdct=4):
     if region is None:
@@ -183,8 +177,7 @@ def dct_features(I,region=None,Ndct=64,Mdct=64,ndct=4,mdct=4):
     Y        = FIm[0:int(Ndct/2),0:int(Mdct/2)]
     x        = np.abs(Y)
     F        = cv2.resize(x,(ndct,mdct))
-    features = np.reshape(F,(ndct*mdct,))
-    return features
+    return np.reshape(F,(ndct*mdct,))
 
 def fit_ellipse(x,y):
     # Fitzgibbon, A.W., Pilu, M., and Fischer R.B., 
@@ -216,14 +209,8 @@ def fit_ellipse(x,y):
     b        = np.sqrt(abs(up/down2))
     area     = np.pi*a*b
 
-    if b>a:
-        ecc  = a/b
-    else:
-        ecc  = b/a
-
-    features = [cx,cy,a,b,alpha,ecc,area]
-
-    return features
+    ecc = a/b if b>a else b/a
+    return [cx,cy,a,b,alpha,ecc,area]
 
 def ellipse_features(R):
     E        = find_boundaries(R, mode='outer').astype(np.uint8)
@@ -231,8 +218,7 @@ def ellipse_features(R):
     data     = np.argwhere(E==True)
     y        = data[:,0]
     x        = data[:,1]
-    features = fit_ellipse(x,y)
-    return features
+    return fit_ellipse(x,y)
 
 def clp_features(img):
 
@@ -261,7 +247,7 @@ def clp_features(img):
     ng = 32
     X = np.array(np.zeros((8,ng)))
     I = cv2.resize(img, (ng, ng))
-    
+
     for i in range(8):
         k = i*2
         for j in range(ng):
@@ -282,25 +268,23 @@ def clp_features(img):
     Qs  = np.std(Q)
     Qf  = np.abs(np.fft.fft(Q))
     Qf  = Qf[range(1,8)]
-    features = [Qm, Qs, Qd, Qd1, Qd2, Qf[0], Qf[1], Qf[2], Qf[3], Qf[4], Qf[5], Qf[6]]
-    return features
+    return [Qm, Qs, Qd, Qd1, Qd2, Qf[0], Qf[1], Qf[2], Qf[3], Qf[4], Qf[5], Qf[6]]
 
 
 def rampefree(x):
     k = len(x)-1
     m = (x[k]-x[0])/k
     b = x[0]
-    y = x - range(k+1)*m - b
-    return y
+    return x - range(k+1)*m - b
 
 def contrast_features(img,region=None,neihbors=2):
     img = img*255
     if region is None:
         region = np.ones_like(img)
-    
+
     R = region==1
     Rn = R
-    for i in range(neihbors):
+    for _ in range(neihbors):
         Rn = imdilate(Rn)
 
     Rn = np.bitwise_and(Rn,~R)
@@ -331,9 +315,8 @@ def contrast_features(img,region=None,neihbors=2):
 
     Ks = np.std(Q)
     K  = np.log(np.max(Q)-np.min(Q)+1)
-        
-    features = [K1,K2,K3,Ks,K]
-    return features
+
+    return [K1,K2,K3,Ks,K]
 
 
 

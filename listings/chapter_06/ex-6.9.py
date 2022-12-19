@@ -17,7 +17,7 @@ cl_name = 'svm-rbf(0.1,1)'  # generic name of the classifier
 
 # Hold-out (train on (X,d), test on (Xt), compare with dt)
 ds, acc, _ = hold_out([name, params], X, d, Xt, dt)  # hold out
-print(cl_name + ': ' + f'Accuracy = {acc:.4f}')
+print(f'{cl_name}: ' + f'Accuracy = {acc:.4f}')
 
 # display confusion matrix
 show_confusion_matrix(dt, ds, 'Testing subset')

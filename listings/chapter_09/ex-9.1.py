@@ -13,9 +13,9 @@ if fxnew:
     fx        = ['basicint','gabor-ri','lbp-ri','haralick-2','fourier','hog','clp']
     # feature extraction in training images
     path      = '../images/castings/'
-    X,d       = extract_features_labels(fx,path+'train','jpg')
+    X,d = extract_features_labels(fx, f'{path}train', 'jpg')
     # feature extraction in testing images
-    Xt,dt     = extract_features_labels(fx,path+'test','jpg')
+    Xt,dt = extract_features_labels(fx, f'{path}test', 'jpg')
     # backup of extracted features
     save_features(X,d,Xt,dt,dataname)
 else:
@@ -32,4 +32,4 @@ ss_fs         = ['fisher','qda','svm-lin','svm-rbf']
 
 clbest,ssbest = best_features_classifier(ss_fs,ff,ss_cl,X,d,Xt,dt,
                                          'Accuracy in Castings')
-print('    Selected Features: '+str((np.sort(sclean[ssbest]))))
+print(f'    Selected Features: {str(np.sort(sclean[ssbest]))}')

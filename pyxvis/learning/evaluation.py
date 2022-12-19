@@ -14,8 +14,7 @@ def hold_out(bcl,X,d,Xt,dt):
 def cross_validation(bcl,X,d,folds):
     clf    = define_classifier(bcl)
     scores = cross_val_score(clf, X, d, cv=folds)
-    acc    = np.mean(scores)
-    return acc
+    return np.mean(scores)
 
 def leave_one_out(bcl,X,d):
     classes   = np.sort(np.unique(d))
@@ -25,8 +24,7 @@ def leave_one_out(bcl,X,d):
     for i in range(nc):
         nd[i] = dd[i].shape[0]
     folds     = int(np.max(nd))
-    acc       = cross_validation(bcl,X,d,folds)
-    return acc
+    return cross_validation(bcl,X,d,folds)
 
 def best_features_classifier(ss_fs,ff,ss_cl,X,d,Xt,dt,stit,folds=5):
     ncl      = len(ss_cl)           # number of classifiers

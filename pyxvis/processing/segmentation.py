@@ -162,17 +162,17 @@ def seg_mser(_img, area=(60, 20000), min_div=0.2, max_var=0.25, delta=5, area_th
         '_delta': delta,
         '_area_threshold': area_threshold
     }
-    
+
     mser = MSER_create(**mser_opts)
     regions, bbox = mser.detectRegions(_img)
-    
+
     mask = np.zeros(_img.shape)
 
-    for dd, region in enumerate(regions):
+    for region in regions:
         mask[region[:,1], region[:,0]] = 1
 
     label_regions, m = label(mask, connectivity=1, return_num=True)
     props = regionprops(label_regions)
     bboxes = np.array([[p.bbox[1], p.bbox[0], p.bbox[3] - p.bbox[1], p.bbox[2] - p.bbox[0]] for p in props])
-    
+
     return mask, label_regions, bboxes
