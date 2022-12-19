@@ -548,7 +548,7 @@ def plot_bboxes(bounding_boxes, color='lawngreen', linewidth=1.5, ax=None):
     if not ax:
         fig, ax = plt.subplots(1, 1)
 
-    for b, bbox in enumerate(bounding_boxes):
+    for bbox in bounding_boxes:
         rect = plt.Rectangle((bbox[0], bbox[1]), bbox[2], bbox[3], fill=False, edgecolor=color, linewidth=linewidth)
         ax.add_patch(rect)
 

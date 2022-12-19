@@ -40,11 +40,9 @@ class MainWindow(form[0], form[1]):
         self.imgplot = None
         self.current_cmap = 'Gray'
 
-        if not root_dir:
-            self.dataset_dir = os.path.join(str(Path.home()), 'datasets', 'xray-imaging')
-        else:
-            self.dataset_dir = root_dir
-
+        self.dataset_dir = root_dir or os.path.join(
+            str(Path.home()), 'datasets', 'xray-imaging'
+        )
         # Init ComboBox_1 with the directory names
         self.dropdown1_lock = False
         self.dropdown2_lock = False

@@ -26,15 +26,15 @@ while i1 < max_width:
     roi = mask[:, i1:i2]
     overlap = np.bitwise_or(roi, bw_i)  # addition into whole segmentation
     mask[:, i1:i2] = overlap
-    i1 = i1 + d1  # update of first column
+    i1 += d1
 
 seg = binview(img, mask, color='g', dilate_pixels=5)
 contours = find_contours(np.float32(mask), 0.5)
 
 fig, ax = plt.subplots(2, 1, figsize=(14, 5))
 ax[0].imshow(img, cmap='gray');
-for n, contour in enumerate(contours):
-        ax[0].plot(contour[:, 1], contour[:, 0], color='r', linewidth=3)
+for contour in contours:
+    ax[0].plot(contour[:, 1], contour[:, 0], color='r', linewidth=3)
 ax[0].axis('off')
 ax[1].imshow(seg)
 ax[1].axis('off')

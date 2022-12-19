@@ -34,7 +34,9 @@ def dual_energy(img_1, img_2, lut):
     """
     # Check input parameters
     if not (isinstance(img_1, np.ndarray) and isinstance(img_2, np.ndarray)):
-        raise TypeError('{}/{} are not an accepted input type for img_1 or img_2'.format(type(img_1), type(img_2)))
+        raise TypeError(
+            f'{type(img_1)}/{type(img_2)} are not an accepted input type for img_1 or img_2'
+        )
 
     nrows, ncols = img_1.shape
     _dual_energy = np.zeros((nrows, ncols))
@@ -58,9 +60,7 @@ def shading(mat_x, mat_r1, mat_r2, i1, i2):
 
     mat_a = (i2 - i1) / (mat_r2 - mat_r1)
     mat_b = i1 - (mat_r1 * mat_a)
-    mat_y = (mat_a * mat_x) + mat_b
-
-    return mat_y
+    return (mat_a * mat_x) + mat_b
 
 
 def fspecial(kernel_name, size=3, sigma=1.0):
@@ -87,10 +87,7 @@ def fspecial(kernel_name, size=3, sigma=1.0):
         'log': kfunc.log_kernel
     }
 
-    # _img_generate kernel function
-    kernel = _kernel_kwarg[kernel_name](size, sigma)
-
-    return kernel
+    return _kernel_kwarg[kernel_name](size, sigma)
 
 
 # def bwareaopen(img, area, connectivity=4):
@@ -167,11 +164,7 @@ def linimg(img, t=255):
     mx = np.max(img.flatten())
     d = mx - mi
 
-    if d == 0:
-        out = (img / mx) * (t / 2)
-    else:
-        out = ((img - mi) / d) * t
-
+    out = (img / mx) * (t / 2) if d == 0 else ((img - mi) / d) * t
     if t == 255:
         out = np.round(out)
 
@@ -189,9 +182,7 @@ def im_median(_img, k):
     Returns:
      img_j (ndarray): filtered image.
     """
-    img_j = medianBlur(_img, k)
-
-    return img_j
+    return medianBlur(_img, k)
 
 
 def im_gaussian(_img, k, sigma=None):
@@ -209,9 +200,7 @@ def im_gaussian(_img, k, sigma=None):
     if not sigma:
         sigma = k / 8.5
 
-    img_j = GaussianBlur(_img, (k, k), sigma)
-
-    return img_j
+    return GaussianBlur(_img, (k, k), sigma)
 
 
 def im_equalization(img, gamma=1.0):
@@ -238,15 +227,15 @@ def im_average(input_img, k):
                          mask h = ones(k,k)/k^2.
     """
     if not isinstance(input_img, np.ndarray):
-        raise TypeError('Function expects an ndarray for input image but received {}.'.format(type(input_img)))
+        raise TypeError(
+            f'Function expects an ndarray for input image but received {type(input_img)}.'
+        )
 
     if not isinstance(k, int):
-        raise TypeError('Function expects an ndarray for k but received {}.'.format(type(k)))
+        raise TypeError(f'Function expects an ndarray for k but received {type(k)}.')
 
     h = np.ones((k, k)) / (k ** 2)
-    out_img = convolve2d(np.double(input_img), h, 'same')
-
-    return out_img
+    return convolve2d(np.double(input_img), h, 'same')
 
 
 def hist_forceuni(img, show=False):
@@ -293,7 +282,7 @@ class Edge:
 
         # Check input parameters
         if _method not in _valid_methods:
-            raise ValueError('{} is not a valid method for edge detection.'.format(_method))
+            raise ValueError(f'{_method} is not a valid method for edge detection.')
 
         self.method = _method
         self.thres = _thres
@@ -349,16 +338,7 @@ class Edge:
 
         grads_diff = np.abs(np.diff(edges, prepend=np.ones((edges.shape[0], 1)), axis=1)) > self.thres
         grads_diff = np.bitwise_or(grads_diff, np.abs(np.diff(edges, prepend=np.ones((1, edges.shape[0])), axis=0)) > self.thres)
-        # grads_diff = np.bitwise_or(grads_diff, (np.abs(
-        #     np.diff(edges[:, ::-1], prepend=np.ones((edges.shape[0], 1)),
-        #             axis=1)) > self.thres)[:, ::-1])
-        # grads_diff = np.bitwise_or(grads_diff, (np.abs(
-        #     np.diff(edges[::-1, :], prepend=np.ones((1, edges.shape[0])),
-        #             axis=0)) > self.thres)[::-1, :])
-
-        out_img = np.bitwise_and(out, grads_diff)
-
-        return out_img
+        return np.bitwise_and(out, grads_diff)
 
     def fit(self, img):
         """
@@ -372,9 +352,7 @@ class Edge:
             None
         """
 
-        self._returns = dict()
-        self._returns.update({'edges': None})
-
+        self._returns = {'edges': None}
         if self.method == 'log':
             _ksize = int(2 * np.ceil(3 * self.sigma) + 1)
             _log_kernel = fspecial(self.method, _ksize, self.sigma)
@@ -382,7 +360,7 @@ class Edge:
             _log = _log / np.sum(_log.flatten())  # Normalize gradients to sum 0
             _edges = self.detect_zero_crossing(_log)
 
-            self._returns.update({'kernel': _log_kernel})  # Keep used kernel
+            self._returns['kernel'] = _log_kernel
 
         elif self.method == 'canny':
             """
@@ -398,7 +376,7 @@ class Edge:
             )
 
         # Keep the output if does exists
-        self._returns.update({'edges': _edges})
+        self._returns['edges'] = _edges
 
     @property
     def edges(self):
@@ -432,15 +410,17 @@ def res_minio(_img_g, h, method='minio'):
     # Check input parameters
     # Input image _img_g
     if not isinstance(_img_g, np.ndarray):
-        raise Exception('{} is not valid input format for the blured image _img_g.'.format(type(_img_g)))
+        raise Exception(
+            f'{type(_img_g)} is not valid input format for the blured image _img_g.'
+        )
 
     # PSF h
     if not isinstance(h, np.ndarray):
-        raise Exception('{} is not a valid format for PSF.'.format(type(h)))
+        raise Exception(f'{type(h)} is not a valid format for PSF.')
 
     # Method
     if method not in _valid_methods:
-        raise ValueError('method do not meet {} as a valid method'.format(method))
+        raise ValueError(f'method do not meet {method} as a valid method')
 
     # Main
     nh = h.shape[-1]
@@ -486,18 +466,18 @@ def conv2(x, y, mode='same'):
      - Support other modes than 'same' (see conv2.m)
     """
 
-    if not(mode == 'same'):
+    if mode != 'same':
         raise Exception("Mode not supported")
 
     # Add singleton dimensions
     if (len(x.shape) < len(y.shape)):
         dim = x.shape
-        for i in range(len(x.shape),len(y.shape)):
+        for _ in range(len(x.shape),len(y.shape)):
             dim = (1,) + dim
         x = x.reshape(dim)
     elif (len(y.shape) < len(x.shape)):
         dim = y.shape
-        for i in range(len(y.shape),len(x.shape)):
+        for _ in range(len(y.shape),len(x.shape)):
             dim = (1,) + dim
         y = y.reshape(dim)
 
@@ -512,9 +492,7 @@ def conv2(x, y, mode='same'):
         else:
             origin = origin + (0,)
 
-    z = convolve(x, y, mode='constant', origin=origin)
-
-    return z
+    return convolve(x, y, mode='constant', origin=origin)
 
 
 def gradlog(img, sigma, th):
@@ -540,9 +518,7 @@ def gradlog(img, sigma, th):
     h = conv2(g, kernel)
     grad, _ = im_grad(img,h)
     egrad = grad > th
-    edge = egrad | elog
-
-    return edge
+    return egrad | elog
 
 # vim: set ts=4 sts=4 sw=4 expandtab smartindent:
 #

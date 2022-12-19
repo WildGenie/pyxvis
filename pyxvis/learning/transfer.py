@@ -21,36 +21,27 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 def tfl_model(base_model):
     if base_model == 1: # MobileNet (87 layers)
         model_name = 'MobileNet'
-        bmodel     = MobileNet(weights='imagenet',include_top=False) 
+        bmodel     = MobileNet(weights='imagenet',include_top=False)
     elif base_model == 2: # InceptionV3 (311 layers)
         model_name = 'InceptionV3'
-        bmodel     = InceptionV3(weights='imagenet',include_top=False) 
+        bmodel     = InceptionV3(weights='imagenet',include_top=False)
     elif base_model == 3: # VGG16 (16 layers)
         model_name = 'VGG16'
-        bmodel     = VGG16(weights='imagenet',include_top=False) 
+        bmodel     = VGG16(weights='imagenet',include_top=False)
     elif base_model == 4: # VGG119 (22 layers)
         model_name = 'VGG19'
-        bmodel     = VGG19(weights='imagenet',include_top=False) 
+        bmodel     = VGG19(weights='imagenet',include_top=False)
     elif base_model == 5: # ResNet50 (175 layers)
         model_name = 'ResNet50'
-        bmodel     = ResNet50(weights='imagenet',include_top=False) 
+        bmodel     = ResNet50(weights='imagenet',include_top=False)
     elif base_model == 6: # Xception (132 layers)
         model_name = 'Xception'
-        bmodel     = Xception(weights='imagenet',include_top=False) 
+        bmodel     = Xception(weights='imagenet',include_top=False)
     elif base_model == 7: # MobileNetV2 (155 layers)
         model_name = 'MobileNetV2'
-        bmodel     = MobileNetV2(weights='imagenet',include_top=False) 
-    #elif base_model == 8: # DenseNet121 (427 layers)
-    #    model_name = 'DenseNet121'
-    #    bmodel     = DenseNet121(weights='imagenet',include_top=False) 
-    #elif base_model == 9: # NASNetMobile (769 layers)
-    #    model_name = 'NASNetMobile'
-    #    bmodel     = NASNetMobile(weights='imagenet',include_top=False) 
-    #elif base_model == 10: # NASNetLarge (1039 layers)
-    #    model_name = 'NASNetLarge'
-    #    bmodel     = NASNetLarge(weights='imagenet',include_top=False) 
+        bmodel     = MobileNetV2(weights='imagenet',include_top=False)
     else:
-        print('error: base model '+str(base_model)+' not defined.')
+        print(f'error: base model {str(base_model)} not defined.')
     bmodel.summary()
     print('\nBase model '+ model_name + ' loaded with '+str(len(bmodel.layers)) + ' layers.')
     return bmodel
@@ -66,8 +57,7 @@ def tfl_define_model(bmodel,dense_layers,NumClasses):
             x = Dense(layers_i,activation='relu')(x)
 
     preds = Dense(NumClasses,activation='softmax')(x) #final layer with softmax activation
-    model = Model(inputs=bmodel.input,outputs=preds)
-    return model
+    return Model(inputs=bmodel.input,outputs=preds)
 
 
 def generate_training_set(val_split, augmentation, batch_size, path_dataset, img_size):
@@ -83,20 +73,24 @@ def generate_training_set(val_split, augmentation, batch_size, path_dataset, img
                                                     validation_split = val_split)
 
         print('\ndefining training subset from '+path_dataset+'/train...')
-        train_set   = image_generator.flow_from_directory(batch_size  = batch_size,
-                                                    directory   = path_dataset+'/train',
-                                                    shuffle     = True,
-                                                    target_size = img_size, 
-                                                    subset      = "training",
-                                                    class_mode  = 'categorical')
+        train_set = image_generator.flow_from_directory(
+            batch_size=batch_size,
+            directory=f'{path_dataset}/train',
+            shuffle=True,
+            target_size=img_size,
+            subset="training",
+            class_mode='categorical',
+        )
 
         print('\ndefining validation subset from '+path_dataset+'/train...')
-        val_set     = image_generator.flow_from_directory(batch_size  = batch_size,
-                                                    directory   = path_dataset+'/train',
-                                                    shuffle     = True,
-                                                    target_size = img_size, 
-                                                    subset      = "validation",
-                                                    class_mode  = 'categorical')
+        val_set = image_generator.flow_from_directory(
+            batch_size=batch_size,
+            directory=f'{path_dataset}/train',
+            shuffle=True,
+            target_size=img_size,
+            subset="validation",
+            class_mode='categorical',
+        )
     else:
         train_generator = ImageDataGenerator(rescale=1. / 255,
                                                     rotation_range  = augmentation,
@@ -109,32 +103,33 @@ def generate_training_set(val_split, augmentation, batch_size, path_dataset, img
         val_generator = ImageDataGenerator(rescale=1. / 255)
 
         print('\ndefining training subset from '+path_dataset+'/train...')
-        train_set = train_generator.flow_from_directory(path_dataset+'/train',
-                                                    target_size = img_size,
-                                                    batch_size  = batch_size,
-                                                    class_mode  = 'categorical')
+        train_set = train_generator.flow_from_directory(
+            f'{path_dataset}/train',
+            target_size=img_size,
+            batch_size=batch_size,
+            class_mode='categorical',
+        )
         print('\ndefining validation subset from '+path_dataset+'/val...')
-        val_set = val_generator.flow_from_directory(path_dataset+'/val',
-                                                    target_size = img_size,
-                                                    batch_size  = batch_size,
-                                                    class_mode  = 'categorical')
+        val_set = val_generator.flow_from_directory(
+            f'{path_dataset}/val',
+            target_size=img_size,
+            batch_size=batch_size,
+            class_mode='categorical',
+        )
 
     return train_set, val_set
 
 def defineCallBacks(model_file):
-    callbacks = [
-        EarlyStopping(
-            monitor        = 'val_acc', 
-            patience       = 8,
-            mode           = 'max',
-            verbose        = 1),
-        ModelCheckpoint(model_file,
-            monitor        = 'val_acc', 
-            save_best_only = True, 
-            mode           = 'max',
-            verbose        = 0)
+    return [
+        EarlyStopping(monitor='val_acc', patience=8, mode='max', verbose=1),
+        ModelCheckpoint(
+            model_file,
+            monitor='val_acc',
+            save_best_only=True,
+            mode='max',
+            verbose=0,
+        ),
     ]
-    return callbacks
 
 def deleteWeights(best_model,last_model):
     if os.path.exists(best_model):
@@ -162,7 +157,7 @@ def tfl_train(bmodel,model,opti_method,nb_layers,train_set,train_steps,val_set,v
     accmax = 0
 
     for j in range(3):
-    
+
         if nb_epochs[j] > 0:
 
             if j==0:
@@ -201,23 +196,23 @@ def tfl_train(bmodel,model,opti_method,nb_layers,train_set,train_steps,val_set,v
             )
 
             model.save_weights(last_model)
-            print('loading best model from '+best_model+' ...')
+            print(f'loading best model from {best_model} ...')
             model.load_weights(best_model)
             print('\n'+st+':')
             C,acc = tfl_testing_accuracy(model,path_dataset,nb_classes,img_size)
             if acc>accmax:
-                print('*** top model achieved '+st+' ***')
+                print(f'*** top model achieved {st} ***')
                 jmax     = j
                 accmax   = acc
                 Cmax     = C
                 topmodel = model
-                print('saving top model: '+top_model+' ...')
+                print(f'saving top model: {top_model} ...')
                 model.save_weights(top_model)
             plot_confusion(C,acc,st,0,nb_classes)
-    print('Top model achieved after Training-'+str(jmax+1))
+    print(f'Top model achieved after Training-{str(jmax + 1)}')
     print('Confusion matrix:')
     print(Cmax)
-    accst = f'Acc = {acc:.4f}'    
+    accst = f'Acc = {acc:.4f}'
     print(accst)
     return topmodel,Cmax,accmax
 
@@ -230,7 +225,7 @@ def tfl_classify_image(model,imgpath,img_size,show):
     x = model.predict(img)
     cl = np.argmax(x[0])
     if show == 1:
-        print(imgpath+' > class '+str(cl) +': ' + '%6.4f' % x[0][cl])
+        print(f'{imgpath} > class {str(cl)}: ' + '%6.4f' % x[0][cl])
     return cl
 
 
@@ -240,22 +235,24 @@ def tfl_testing_accuracy(model,path_dataset,nb_classes,img_size):
     y   = np.ones([0,1]) # predictions
     nt  = 0
     for i in range(nb_classes):
-        path_i = path_dataset+'/test/class_'+str(i)+'/'
+        path_i = f'{path_dataset}/test/class_{str(i)}/'
         img_test_i = dirfiles(path_i,'*.jpg')
         n_i    = len(img_test_i)
         nt     = nt + n_i
         ygt_i  = i*np.ones([n_i,1])
         ygt    = np.concatenate((ygt, ygt_i), axis=0)
         y_i    = np.zeros([n_i,1])
-        print('   > class '+str(i)+'/'+str(nb_classes-1)+': evaluating model on '+str(n_i)+' images of '+path_i+' ...')
+        print(
+            f'   > class {str(i)}/{str(nb_classes - 1)}: evaluating model on {n_i} images of {path_i} ...'
+        )
         for j in range(n_i):
             img_path = img_test_i[j]
             y_i[j]   = tfl_classify_image(model,path_i+img_path,img_size,0)
         y  = np.concatenate((y, y_i), axis=0)
 
-    print(str(nt)+' test images evaluated.')
- 
-    C   = confusion_matrix(ygt, y) 
+    print(f'{str(nt)} test images evaluated.')
+
+    C   = confusion_matrix(ygt, y)
     acc = accuracy_score(ygt,y)
 
     return C, acc

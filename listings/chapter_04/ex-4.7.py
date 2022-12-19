@@ -13,7 +13,7 @@ seg = binview(img, mask, 'g')
 
 fig, ax = plt.subplots(1, 2, figsize=(12, 6))
 ax[0].imshow(img, cmap='gray')
-for n, contour in enumerate(contours):
+for contour in contours:
         ax[0].plot(contour[:, 1], contour[:, 0], color='r', linewidth=3)
 ax[0].axis('off')
 ax[1].imshow(seg)

@@ -27,8 +27,6 @@ def CNN(patches_file,type_exec,p,d,f):
 
     # parameters
     model_file    = 1   # 1 store the best trained model, 0 store the last trained model
-    epochs        = 100 # maximal number of epochs in training stage
-
     # execution type
     if     type_exec == 0: # training and testing
         print('Execution Type 0: Training and testing...')
@@ -78,12 +76,9 @@ def CNN(patches_file,type_exec,p,d,f):
         train_layer   = 1  # output layer of train data is stored in train_output.npy, 0 = no
         test_layer    = 1  # output layer of test data is stored in test_output.npy, 0 = no
 
-    plot_curves   = 1  # plot loss and accuracy curves
     best_model    = 'cnn_best_model.h5'
     last_model    = 'cnn_last_model.h5'
 
-    #size of parameters
-    batch_size    = 128
     droprate      = 0.25
 
     # tensorflow configuration
@@ -111,6 +106,10 @@ def CNN(patches_file,type_exec,p,d,f):
     # training
     if do_train == 1 and only_test == 0:
         deleteWeights(best_model,last_model)
+        epochs        = 100 # maximal number of epochs in training stage
+
+        #size of parameters
+        batch_size    = 128
         history = model.fit(X_train, Y_train,
             batch_size      = batch_size,
             epochs          = epochs,
@@ -119,19 +118,20 @@ def CNN(patches_file,type_exec,p,d,f):
             shuffle         = True,
             callbacks       = callbacks)
         model.save_weights(last_model)
+        plot_curves   = 1  # plot loss and accuracy curves
         if plot_curves == 1:
             plot_cnn_history(history)
 
     # load trained model
     if model_file == 1: # best model
-        print('loading best model from '+best_model+' ...')
+        print(f'loading best model from {best_model} ...')
         model.load_weights(best_model)
-    else:               # last model
-        print('loading last model from ' +last_model+' ...')
+    else:           # last model
+        print(f'loading last model from {last_model} ...')
         model.load_weights(last_model)
 
     # print results in training/testing data
-    print('results using '+patches_file+':')
+    print(f'results using {patches_file}:')
     if ev_train == 1:
         evaluateCNN(model,X_train,Y_train,'training')
     if ev_test == 1:
@@ -197,25 +197,22 @@ def deleteWeights(best_model,last_model):
         os.remove(last_model)
 
 def evaluateCNN(model,X,y,st):
-    print('evaluating performance in '+st+' set ('+str(y.shape[0])+' samples)...')
+    print(f'evaluating performance in {st} set ({str(y.shape[0])} samples)...')
     score   = model.evaluate(X,y,verbose=0)
-    print(st+' loss:', score[0])
-    print(st+' accuracy:', score[1])
+    print(f'{st} loss:', score[0])
+    print(f'{st} accuracy:', score[1])
 
 def defineCallBacks(model_file):
-    callbacks = [
-        EarlyStopping(
-            monitor        = 'val_acc', 
-            patience       = 10,
-            mode           = 'max',
-            verbose        = 1),
-        ModelCheckpoint(model_file,
-            monitor        = 'val_acc', 
-            save_best_only = True, 
-            mode           = 'max',
-            verbose        = 0)
+    return [
+        EarlyStopping(monitor='val_acc', patience=10, mode='max', verbose=1),
+        ModelCheckpoint(
+            model_file,
+            monitor='val_acc',
+            save_best_only=True,
+            mode='max',
+            verbose=0,
+        ),
     ]
-    return callbacks
 
 def sliding_window(image, stepSize, windowSize):
 	for i in range(0, image.shape[0], stepSize):
@@ -223,7 +220,7 @@ def sliding_window(image, stepSize, windowSize):
 			yield (i, j, image[i:i+windowSize,j:j+windowSize])
 
 def loadSliWinPatches(st_file):
-    print('loading image '+ st_file +' for sliding windows...')
+    print(f'loading image {st_file} for sliding windows...')
     image3 = cv2.imread(st_file)
     image  = image3[:,:,0]
     ROI3   = cv2.imread('ROI.png')
@@ -240,7 +237,7 @@ def loadSliWinPatches(st_file):
             im = cv2.resize(window[:,:], (32,32),interpolation = cv2.INTER_CUBIC)
             k = k+1
             X[k,:,:,:] = im
-    print('saving X_test.npy with '+str(k) + ' patches...')
+    print(f'saving X_test.npy with {str(k)} patches...')
     X_test = X[0:k,:,:,:]/255.0
     Y_test = np.zeros((k,1), dtype=int)
     classes  = [0, 1]
@@ -249,7 +246,7 @@ def loadSliWinPatches(st_file):
     return X_test, Y_test, classes
 
 def outSliWinPatches(st_file):
-    print('computing output image for '+ st_file +' using sliding windows...')
+    print(f'computing output image for {st_file} using sliding windows...')
     image3 = cv2.imread(st_file)
     image  = image3[:,:,0]
     ROI3   = cv2.imread('ROI.png')
@@ -261,35 +258,34 @@ def outSliWinPatches(st_file):
     q      = 12 # w/2
     y_predic = np.load('test_predict.npy')
     n = y_predic.shape[0]
-    print(str(n)+' points will be evaluated...')
-    image3[0,0,1] = 255 
-    image3[0,1,1] = 255 
-    image3[1,1,1] = 255 
-    image3[1,0,1] = 255 
+    print(f'{str(n)} points will be evaluated...')
+    image3[0,0,1] = 255
+    image3[0,1,1] = 255
+    image3[1,1,1] = 255
+    image3[1,0,1] = 255
     t = 0
     k = -1
     for (i, j, window) in sliding_window(image, stepSize=6, windowSize=w):
         if (window.shape[0]==w) and (window.shape[1]==w) and (ROI[i+q,j+q]==1):
             k = k+1
-            if k<n:
-                if  y_predic[k,1] > 0.95:
-                    # print(str(k) + ':' + str(y)+','+str(x)+str(y_predic[k,1]))
-                    iq = i+q
-                    jq = j+q
-                    image3[iq  ,jq  ,0] = 255 
-                    image3[iq+1,jq  ,0] = 255 
-                    image3[iq  ,jq+1,0] = 255 
-                    image3[iq+1,jq+1,0] = 255 
-                    image3[iq  ,jq  ,1] = 0 
-                    image3[iq+1,jq  ,1] = 0 
-                    image3[iq  ,jq+1,1] = 0 
-                    image3[iq+1,jq+1,1] = 0 
-                    image3[iq  ,jq  ,2] = 0 
-                    image3[iq+1,jq  ,2] = 0 
-                    image3[iq  ,jq+1,2] = 0 
-                    image3[iq+1,jq+1,2] = 0 
-                    t = t+1
-    print('storing output.png with ' + str(t) +' detected points...')
+            if k < n and y_predic[k, 1] > 0.95:
+                # print(str(k) + ':' + str(y)+','+str(x)+str(y_predic[k,1]))
+                iq = i+q
+                jq = j+q
+                image3[iq  ,jq  ,0] = 255
+                image3[iq+1,jq  ,0] = 255
+                image3[iq  ,jq+1,0] = 255
+                image3[iq+1,jq+1,0] = 255
+                image3[iq  ,jq  ,1] = 0
+                image3[iq+1,jq  ,1] = 0
+                image3[iq  ,jq+1,1] = 0
+                image3[iq+1,jq+1,1] = 0
+                image3[iq  ,jq  ,2] = 0
+                image3[iq+1,jq  ,2] = 0
+                image3[iq  ,jq+1,2] = 0
+                image3[iq+1,jq+1,2] = 0
+                t = t+1
+    print(f'storing output.png with {str(t)} detected points...')
     cv2.imwrite('output.png',image3)
     return
 
@@ -303,24 +299,26 @@ def evaluateLayer(model,K,X,st,num_layer,test_predict):
     layer_outs = functor([test, 1.])
     x          = layer_outs[num_layer]
     n          = X.shape[0]
-    m          = x.shape[1]
-
     if test_predict == 1:
-        print('computing prediction output in ' +st +' set with '+str(n)+' samples...')
+        print(f'computing prediction output in {st} set with {str(n)} samples...')
         y = model.predict(X)
-        print('saving prediction in '+st+'_predict.npy ...')
-        np.save(st+'_predict',y)
+        print(f'saving prediction in {st}_predict.npy ...')
+        np.save(f'{st}_predict', y)
 
     if num_layer>0:
+        m          = x.shape[1]
+
         d = np.zeros((n,m))
-        print('computing output layer '+str(num_layer)+ ' in ' +st +' set with '+str(n)+' descriptors of '+str(m)+' elements...')
+        print(
+            f'computing output layer {str(num_layer)} in {st} set with {str(n)} descriptors of {str(m)} elements...'
+        )
         for i in range(n):
             test       = X[i]
             test       = test.reshape(1,1,X.shape[2],X.shape[3])
             layer_outs = functor([test, 1.])
             d[i]       = layer_outs[num_layer]
-        print('saving layer output in '+st+'_layer_'+str(num_layer)+'.npy ...')
-        np.save(st+'_layer_'+str(num_layer),d)
+        print(f'saving layer output in {st}_layer_{str(num_layer)}.npy ...')
+        np.save(f'{st}_layer_{str(num_layer)}', d)
 
 
 def computeconfusionMatrix(model,X,y):

@@ -20,10 +20,8 @@ from pyxvis.features.selection     import fse_model, fsel
 def define_classifier(bcl):
     if isinstance(bcl,str):
         bcl = clf_model(bcl)
-    st = bcl[0]+'('+bcl[1]+')'
-    # print('evaluating '+st+'...')
-    clf = eval(st)
-    return clf
+    st = f'{bcl[0]}({bcl[1]})'
+    return eval(st)
 
 def load_classifiers():
     clfs = [
@@ -47,10 +45,7 @@ def load_classifiers():
         'MLPClassifier',                 'solver="adam", alpha=1e-5,hidden_layer_sizes=(10,), random_state=1,max_iter=2000',
         ]
     m = len(clfs)
-    bcl = dict()
-    bcl['name'] = clfs[0:m:2]
-    bcl['parm'] = clfs[1:m:2]
-    return bcl
+    return {'name': clfs[:m:2], 'parm': clfs[1:m:2]}
 
 def clf_model(sto,show=0):
     st = sto.lower()
@@ -60,9 +55,9 @@ def clf_model(sto,show=0):
     elif st == 'dmin':
         name    = 'NearestCentroid'    # name of the classifier
         params  = ''                              # parameters of the classifier
-    elif st[0:3] == 'knn':
+    elif st[:3] == 'knn':
         name   = 'KNeighborsClassifier'
-        params = 'n_neighbors='+st[3:]
+        params = f'n_neighbors={st[3:]}'
     elif st == 'sklda':
         name    = 'LinearDiscriminantAnalysis'    # name of the classifier
         params  = ''                              # parameters of the classifier
@@ -84,45 +79,42 @@ def clf_model(sto,show=0):
     elif st == 'svm-lin':
         name    = 'SVC'                           # name of the classifier
         params  = 'kernel="linear"'               # parameters of the classifier
-    elif st[0:7] == 'svm-rbf':
+    elif st[:7] == 'svm-rbf':
         name   = 'SVC'
         if len(st)==7:
             C = 1
             gamma = 0.1
         else:
             (gamma,C) = eval(st[7:])
-        params = 'kernel = "rbf", gamma='+str(gamma)+',C='+str(C)
+        params = f'kernel = "rbf", gamma={str(gamma)},C={str(C)}'
 
-    elif st[0:7] == 'svm-pol':
+    elif st[:7] == 'svm-pol':
         name   = 'SVC'
         if len(st)==7:
             C = 1
             gamma = 0.1
         else:
             (gamma,C,degree) = eval(st[7:])
-        params = 'kernel = "poly", gamma='+str(gamma)+',C='+str(C)+',degree='+str(degree)
-        # params = 'kernel = "poly", gamma=0.1, degree = 3, C='+str(C)
-    elif st[0:7] == 'svm-sig':
+        params = f'kernel = "poly", gamma={str(gamma)},C={str(C)},degree={str(degree)}'
+            # params = 'kernel = "poly", gamma=0.1, degree = 3, C='+str(C)
+    elif st[:7] == 'svm-sig':
         name   = 'SVC'
         if len(st)==7:
             C = 0.1
             gamma = 0.001
         else:
             (gamma,C) = eval(st[7:])
-        params = 'kernel = "sigmoid", gamma='+str(gamma)+',C='+str(C)
+        params = f'kernel = "sigmoid", gamma={str(gamma)},C={str(C)}'
     elif st == 'bayes-naive':
         name = 'GaussianNB'
         params = ''
     elif st == 'bayes-kde':
         name = 'KDEClassifier'
         params = 'bandwidth=1.0'
-    elif st[0:2] == 'nn':
+    elif st[:2] == 'nn':
         name   = 'MLPClassifier'
-        if len(st)==2:
-            hst = '(10,)'
-        else:
-            hst = st[2:]
-        params = 'solver="adam", alpha=1e-5, random_state=1,max_iter=2000,hidden_layer_sizes='+hst
+        hst = '(10,)' if len(st)==2 else st[2:]
+        params = f'solver="adam", alpha=1e-5, random_state=1,max_iter=2000,hidden_layer_sizes={hst}'
     elif st == 'rf':
         name = 'RandomForestClassifier'
         params = 'n_estimators=20,random_state = 0'
@@ -133,9 +125,9 @@ def clf_model(sto,show=0):
         name = 'AdaBoostClassifier'
         params = 'n_estimators=100'
     else:
-        print('Error: '+st+' does not exist as classification method in clf_model.')
+        print(f'Error: {st} does not exist as classification method in clf_model.')
     if show==1:
-        print('using classifier: ' + name+'('+params+')...')
+        print(f'using classifier: {name}({params})...')
     return name,params
 
 def train_classifier(clf,X,d):
@@ -143,8 +135,7 @@ def train_classifier(clf,X,d):
     return clf
 
 def test_classifier(clf,Xt):
-    ds  = clf.predict(Xt)
-    return ds
+    return clf.predict(Xt)
 
 def train_test_classifier(bcl,X,d,Xt):
     clf = define_classifier(bcl)
@@ -378,6 +369,5 @@ def nn_loss_function(a,Y):
     dam = Ys-Y
     d2 = np.multiply(dam,dam)
     ds = np.sqrt(np.sum(d2,axis=0,keepdims=True))/N
-    loss = np.sum(ds)
-    return loss
+    return np.sum(ds)
 

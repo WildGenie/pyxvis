@@ -12,9 +12,13 @@ if fxnew:
     fx = ['flusser', 'hugeo', 'basicgeo', 'fourierdes', 'gupta']
     # feature extraction in training images
     path = '../images/threatobjects/'
-    X, d = extract_features_labels(fx, path + 'train', 'jpg', segmentation='bimodal')
+    X, d = extract_features_labels(
+        fx, f'{path}train', 'jpg', segmentation='bimodal'
+    )
     # feature extraction in testing images
-    Xt, dt = extract_features_labels(fx, path + 'test', 'jpg', segmentation='bimodal')
+    Xt, dt = extract_features_labels(
+        fx, f'{path}test', 'jpg', segmentation='bimodal'
+    )
     # backup of extracted features
     save_features(X, d, Xt, dt, dataname)
 else:
@@ -31,6 +35,6 @@ ss_fs = ['fisher', 'qda', 'svm-lin', 'svm-rbf']
 
 clbest, ssbest = best_features_classifier(ss_fs, ff, ss_cl, X, d, Xt, dt,
                                           'Accuracy in Threat Objects')
-print('   Extracted Features: ' + str(Nx))
-print('     Cleaned Features: ' + str(len(sclean)))
-print('    Selected Features: ' + str(len(ssbest)) + ' > ' + str((np.sort(sclean[ssbest]))))
+print(f'   Extracted Features: {str(Nx)}')
+print(f'     Cleaned Features: {len(sclean)}')
+print(f'    Selected Features: {len(ssbest)} > {str(np.sort(sclean[ssbest]))}')

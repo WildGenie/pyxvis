@@ -27,13 +27,37 @@ for k in range(n):
     ds = test_classifier(clf, Xt)  # classification of testing
     acc_train[k] = accuracy_score(d, d0)  # accuracy in training
     acc_test[k] = accuracy_score(dt, ds)  # accuracy in testing
-    print(f'{k:3d}' + ') ' + f'{ss_cl[k]:20s}' + ': ' +
-          f'Acc-Train = {acc_train[k]:.4f}' + '   ' + f'Acc-Test = {acc_test[k]:.4f}')
+    print(
+        (
+            (
+                (
+                    f'{k:3d}) '
+                    + f'{ss_cl[k]:20s}'
+                    + ': '
+                    + f'Acc-Train = {acc_train[k]:.4f}'
+                )
+                + '   '
+            )
+            + f'Acc-Test = {acc_test[k]:.4f}'
+        )
+    )
 ks = np.argmax(acc_test)
 print('-----------------------------------------------------------------')
 print('Best Classifier:')
-print(f'{ks:3d}' + ') ' + f'{ss_cl[ks]:20s}' + ': ' +
-      f'Acc-Train = {acc_train[ks]:.4f}' + '   ' + f'Acc-Test = {acc_test[ks]:.4f}')
+print(
+    (
+        (
+            (
+                f'{ks:3d}) '
+                + f'{ss_cl[ks]:20s}'
+                + ': '
+                + f'Acc-Train = {acc_train[ks]:.4f}'
+            )
+            + '   '
+        )
+        + f'Acc-Test = {acc_test[ks]:.4f}'
+    )
+)
 print('-----------------------------------------------------------------')
 
 (name, params) = clf_model(ss_cl[ks])  # function name and parameters

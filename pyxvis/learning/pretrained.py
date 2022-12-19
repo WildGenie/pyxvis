@@ -86,7 +86,7 @@ def prt_model(model_id,output_layer):
         elif output_layer == 2: # ONNX - Previous Layer
             model_name = 'ResNet50_ONNX_P'
             layerout = 'flatten0_output'
-    
+
     # 1 VGG16        
     elif model_id == 1: 
         if output_layer == 0: # Keras
@@ -142,7 +142,7 @@ def prt_model(model_id,output_layer):
             model = Xception(weights='imagenet', include_top=False)
         #img_size = 224
         img_size = 30
-    
+
     # 6 MobileNet
     elif model_id == 6: 
         model_path = '../models/mobilenet.onnx'
@@ -234,26 +234,19 @@ def prt_model(model_id,output_layer):
 
 
     if output_layer > 0:  
-        print('loading model '+model_path+'...')
+        print(f'loading model {model_path}...')
         sym, arg_params, aux_params = import_model(model_path)
-        if len(mx.test_utils.list_gpus())==0:
-            ctx = mx.cpu()
-        else:
-            ctx = mx.gpu(0)
-        
+        ctx = mx.cpu() if len(mx.test_utils.list_gpus())==0 else mx.gpu(0)
         all_layers = sym.get_internals()
         print(all_layers.list_outputs())
-        if layerout == 'last':
-            sym3 = sym
-        else:
-            sym3 = all_layers[layerout]
+        sym3 = sym if layerout == 'last' else all_layers[layerout]
         model = mx.mod.Module(symbol=sym3, context=ctx, label_names=None, data_names=[datain] )
         image_size = (224,224)
         img_size = image_size[1]
-        model.bind(data_shapes=[(datain, (1, 3, image_size[0], image_size[1]))])
+        model.bind(data_shapes=[(datain, (1, 3, image_size[0], img_size))])
         model.set_params(arg_params, aux_params)
 
-    print('model '+model_name+' loaded.')
+    print(f'model {model_name} loaded.')
     return model,img_size,model_name
 
 def get_image(path, show=False):
@@ -283,8 +276,7 @@ def get_features(mod,path):
     data = mx.nd.array(input_blob)
     db = mx.io.DataBatch(data=(data,))
     mod.forward(db, is_train=False)
-    embedding = mod.get_outputs()[0].asnumpy()
-    return embedding
+    return mod.get_outputs()[0].asnumpy()
 
 def extract_prt_features_img(model_id,output_layer,model,nn,st):
     if output_layer<1:

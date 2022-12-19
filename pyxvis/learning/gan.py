@@ -115,7 +115,7 @@ class DCGAN():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(0.25))
 
-        for i in range(self.nmax):
+        for _ in range(self.nmax):
             d = 2*d
             model.add(Conv2D(d, kernel_size=3, strides=2, padding="same"))
             model.add(BatchNormalization(momentum=0.8))
@@ -183,12 +183,9 @@ class DCGAN():
     def save_gan_examples(self, epoch=-1):
         r, c = 5, 5
         t = r*c
-        if epoch >= 0: 
-            st = '%0*d' % (6,epoch)
-        else:
-            st = 'output'
-        st_path = GAN_PATH + 'examples/gan_examples_' + st + '.png'
-        print('> saving '+str(t)+ ' synthetic images (examples) in ' + st_path)
+        st = '%0*d' % (6,epoch) if epoch >= 0 else 'output'
+        st_path = f'{GAN_PATH}examples/gan_examples_{st}.png'
+        print(f'> saving {str(t)} synthetic images (examples) in {st_path}')
 
         noise = np.random.normal(0, 1, (t, self.latent_dim))
         gen_images = self.generator.predict(noise)
@@ -219,25 +216,24 @@ class DCGAN():
 
 
     def save_gan_model(self,st):
-        st_path = GAN_PATH + 'models/gan_model_'+st+'.h5'
-        print('> saving model in ' + st_path + ' ...')
+        st_path = f'{GAN_PATH}models/gan_model_{st}.h5'
+        print(f'> saving model in {st_path} ...')
         save_model(self.combined,st_path)
 
     def load_gan_model(self,st_path):
         # st_path = 'models/gan_model_'+st+'.h5'
-        print('loading ' + st_path + ' ...')
+        print(f'loading {st_path} ...')
         load_model(self.combined,st_path)
 
 def save_images_gan(N,gen_images,st):
-        st_path = GAN_PATH + 'synthetic/gan_synthetic_'+st
-        print('> saving '+str(N)+' GAN synthetic images in '+st_path+'.npy')
-        np.save(st_path,gen_images)
-        return
+    st_path = f'{GAN_PATH}synthetic/gan_synthetic_{st}'
+    print(f'> saving {str(N)} GAN synthetic images in {st_path}.npy')
+    np.save(st_path,gen_images)
+    return
 
 def load_train_defects(st_file):
-        print('loading training defect pacthes '+st_file+'...')
-        x_train = np.load(st_file)
-        return x_train
+    print(f'loading training defect pacthes {st_file}...')
+    return np.load(st_file)
 
 # from https://github.com/keras-team/keras/issues/10608
 

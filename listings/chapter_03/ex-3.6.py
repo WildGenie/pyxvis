@@ -25,18 +25,18 @@ img_boards = []
 
 for i in range(1, 19):
     
-    print('Find chessboard corners in image {}: '.format(i), end='')
-    
+    print(f'Find chessboard corners in image {i}: ', end='')
+
     img = image_set.load_image(8, i)
     img_h = img.copy()
-    
+
     # Keep a copy of the image but using three color channels. Just for visualization.
     img = cv.cvtColor(img, cv.COLOR_GRAY2BGR)
-    
+
     ret, corners = cv.findChessboardCorners(img_h, (nx, ny), flags=cv.CALIB_CB_ADAPTIVE_THRESH)
 
-    print('{}'.format(ret))
-    
+    print(f'{ret}')
+
     if ret:
         obj_points.append(objp)
         corners = cv.cornerSubPix(img_h, corners, (11, 11), (-1, -1), criteria)

@@ -45,7 +45,7 @@ def plot_epipolar_line(mat_f, m, ax, line_color='r'):
     ell = np.dot(mat_f, m)
     ell = ell / ell[-1]
     ax_lim = ax.axis()
-    x = np.asarray(ax_lim[0:2])
+    x = np.asarray(ax_lim[:2])
     a = ell[0]
     b = ell[1]
     c = ell[2]
@@ -173,16 +173,9 @@ def skew_symmetric(mat, null_space):
     # epipole in second view
     e2 = np.dot(mat, null_space)
 
-    # The vector e2 as Skew-symmetric matrix
-    mat_u = np.array(
-        [
-            [0, -e2[2], e2[1]],
-            [e2[2], 0, -e2[0]],
-            [-e2[1], e2[0], 0]
-        ]
+    return np.array(
+        [[0, -e2[2], e2[1]], [e2[2], 0, -e2[0]], [-e2[1], e2[0], 0]]
     )
-
-    return mat_u
 
 
 def reproject_trifocal(m1, m2, tensor, method=2):

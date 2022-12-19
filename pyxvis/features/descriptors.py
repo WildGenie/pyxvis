@@ -87,10 +87,11 @@ def match_descriptors(descriptors1, descriptors2, matcher='flann', max_ratio=0.8
         matches = flann.knnMatch(descriptors1, descriptors2, k=2)
 
     # Need to draw only good matches, so create a mask using ratio test as per Lowe's paper.
-    good_matches = []
-    for i, (m, n) in enumerate(matches):
-        if m.distance < max_ratio * n.distance:
-            good_matches.append([n.queryIdx, m.trainIdx])  # Keep indexes of matched keypoints
+    good_matches = [
+        [n.queryIdx, m.trainIdx]
+        for m, n in matches
+        if m.distance < max_ratio * n.distance
+    ]
     good_matches = array(good_matches)
 
     return good_matches

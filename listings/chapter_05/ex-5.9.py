@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier as KNN
 # Training-Data
 path = '../images/fishbones/'
 fx = ['basicint', 'gabor-ri', 'lbp-ri', 'haralick-2', 'fourier', 'dct', 'hog']
-X, d = extract_features_labels(fx, path + 'train', 'jpg')
+X, d = extract_features_labels(fx, f'{path}train', 'jpg')
 X, sclean, a, b = clean_norm(X)
 (name, params) = fse_model('QDA')
 ssfs = fsel([name, params], X, d, 15, cv=5, show=1)
@@ -20,11 +20,11 @@ Ypca, _, A, Mx, _ = pca(X, n_components=6)
 X = np.concatenate((X, Ypca), axis=1)
 sf = exsearch(X, d, n_features=3, method="fisher", show=True)
 X = X[:, sf]
-print('Jfisher = ' + str(jfisher(X, d)))
+print(f'Jfisher = {str(jfisher(X, d))}')
 plot_features3(X, d, 'Fishbones')
 
 # Testing-Data
-Xt, dt = extract_features_labels(fx, path + 'test', 'jpg')
+Xt, dt = extract_features_labels(fx, f'{path}test', 'jpg')
 Xt = clean_norm_transform(Xt, sclean, a, b)
 Xt = Xt[:, ssfs]
 Ytpca = np.matmul(Xt - Mx, A)
